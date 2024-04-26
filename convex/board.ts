@@ -38,7 +38,20 @@ export const remove = mutation({
                   throw new Error("Не авторизован")
             }
 
+            const existingFavorite = await ctx.db
+                  .query("userFavorites")
+                  .withIndex("by_user_board", (q) =>
+                        q
+                              .eq("userId", identity.subject)
+                              .eq("boardId", args.id)
+                  )
+                  .unique();
+
+            if (existingFavorite) {
+                  await ctx.db.delete(existingFavorite._id);
+            }
             await ctx.db.delete(args.id);
+
       }
 })
 
@@ -73,8 +86,7 @@ export const update = mutation({
 
 export const favorite = mutation({
       args: {
-            id: v.id("boards"),
-            orgId: v.string()
+            id: v.id("boards")
       },
       handler: async (ctx, args) => {
             const identity = await ctx.auth.getUserIdentity();
@@ -89,11 +101,10 @@ export const favorite = mutation({
             const userId = identity.subject;
             const existingFavorite = await ctx.db
                   .query("userFavorites")
-                  .withIndex("by_user_board_org", (q) =>
+                  .withIndex("by_user_board", (q) =>
                         q
                               .eq("userId", userId)
                               .eq("boardId", board._id)
-                              .eq("orgId", args.orgId)
                   )
                   .unique();
 
@@ -101,7 +112,7 @@ export const favorite = mutation({
                   throw new Error("Доска уже в любимых")
             }
             await ctx.db.insert("userFavorites", {
-                  orgId: args.orgId,
+                  orgId: board.orgId,
                   userId: userId,
                   boardId: board._id,
             })

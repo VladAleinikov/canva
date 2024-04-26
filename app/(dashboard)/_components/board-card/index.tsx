@@ -48,7 +48,7 @@ export const BoardCard = ({
       onUnfavorite({ id: _id })
       .catch(()=> toast.error("Не удалось удалить из любимых"))
     } else {
-      onFavorite({id: _id, orgId})
+      onFavorite({id: _id})
       .catch(()=> toast.error("Не удалось добавить в любимые "))
     }
 
