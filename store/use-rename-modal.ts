@@ -1,19 +1,26 @@
 import { create } from 'zustand'
 
-const defaultValues = { id: "", title: "" }
+type valueType = {
 
-interface IRenameModal {
+      id?: string,
+      title: string,
+      type: "CREATE" | "UPDATE"
+}
+
+interface IInputTitlteModal {
       isOpen: boolean,
-      initialValues: typeof defaultValues,
-      onOpen: (id: string, title: string) => void,
+      initialValues: valueType
+      onOpen: (type: "CREATE" | "UPDATE", id?: string, title?: string,) => void,
       onClose: () => void
 };
 
-export const useRenameModal = create<IRenameModal>((set) => ({
+const defaultValues: valueType = { id: "", title: "", type: "CREATE" }
+
+export const useInputTitlteModal = create<IInputTitlteModal>((set) => ({
       isOpen: false,
-      onOpen: (id, title) => set({
+      onOpen: (type, id, title) => set({
             isOpen: true,
-            initialValues: { id, title }
+            initialValues: { id, title: title || "", type },
       }),
       onClose: () => set({
             isOpen: false,

@@ -1,6 +1,6 @@
 "use client"
 
-import { RenameModal } from "@/components/modals/rename-modal"
+import { InputTitleModal } from "@/components/modals/input-title-modal"
 import { useEffect, useState } from "react"
 
 
@@ -15,7 +15,7 @@ export const ModalProvider = () => {
       }
       return (
             <>
-                  <RenameModal />
+                  <InputTitleModal />
             </>
       )
 }

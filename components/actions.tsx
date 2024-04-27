@@ -8,7 +8,7 @@ import { useApiMutation } from "@/hooks/use-api-mutation"
 import { api } from "@/convex/_generated/api"
 import { ConfirmModal } from "./confirm-modal"
 import { Button } from "./ui/button"
-import { useRenameModal } from "@/store/use-rename-modal"
+import { useInputTitlteModal } from "@/store/use-rename-modal"
 
 interface ActionProps {
       children: React.ReactNode,
@@ -25,7 +25,7 @@ export const Actions = ({
       id,
       title
 }: ActionProps) => {
-      const { onOpen} = useRenameModal();
+      const { onOpen} = useInputTitlteModal();
 
       const { mutate, pending } = useApiMutation(api.board.remove)
       const onCopyLink = () => {
@@ -58,7 +58,7 @@ export const Actions = ({
                               Копировать ссылку
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                              onClick={() => onOpen(id, title)}
+                              onClick={() => onOpen( "UPDATE", id, title)}
                               className="p-3 cursor-pointer"
                         >
                               <Pencil className="h-4 w-4 mr-2" />

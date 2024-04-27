@@ -1,6 +1,6 @@
 "use client"
 
-import { useRenameModal } from "@/store/use-rename-modal"
+import { useInputTitlteModal } from "@/store/use-rename-modal"
 import {
       Dialog,
       DialogClose,
@@ -17,15 +17,17 @@ import { Button } from "../ui/button"
 import { useApiMutation } from "@/hooks/use-api-mutation"
 import { api } from "@/convex/_generated/api"
 import { toast } from "sonner"
+import { useOrganization } from "@clerk/nextjs"
 
-
-export const RenameModal = () => {
-      const { mutate, pending } = useApiMutation(api.board.update)
+export const InputTitleModal = () => {
+      const { organization} = useOrganization();
+      const { mutate: mutateRename, pending: pendingRename } = useApiMutation(api.board.update)
+      const { mutate: mutateCreate, pending: pendingCreate } = useApiMutation(api.board.create)
       const {
             isOpen,
             onClose,
-            initialValues
-      } = useRenameModal();
+            initialValues,
+      } = useInputTitlteModal();
       const [title, setTitle] = useState<string>(initialValues.title)
 
       useEffect(() => {
@@ -35,15 +37,27 @@ export const RenameModal = () => {
       const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
             e.preventDefault();
 
-            mutate({
-                  id: initialValues.id,
-                  title
-            })
-                  .then(() => {
-                        toast.success("Доска переименована")
-                        onClose();
+            if (initialValues.type === "CREATE") {
+                  mutateCreate({
+                        orgId: organization?.id,
+                        title
                   })
-                  .catch(() => (toast.error("Не получилось переименовать")))
+                        .then(() => {
+                              toast.success("Доска создана")
+                              onClose();
+                        })
+                        .catch(() => (toast.error("Не получилось создать")))
+            } else {
+                  mutateRename({
+                        id: initialValues.id,
+                        title
+                  })
+                        .then(() => {
+                              toast.success("Доска переименована")
+                              onClose();
+                        })
+                        .catch(() => (toast.error("Не получилось переименовать")))
+            }
       }
 
       return (
@@ -51,18 +65,18 @@ export const RenameModal = () => {
                   <DialogContent>
                         <DialogHeader>
                               <DialogTitle>
-                                    Изменить заголовок доски
+                                    {initialValues.type === "CREATE" ? "Создать новую доску" : "Изменить заголовок доски"}
                               </DialogTitle>
                         </DialogHeader>
                         <DialogDescription>
-                              Введите новый заголовк для этой доски
+                              Введите заголовк для этой доски
                         </DialogDescription>
                         <form
                               onSubmit={onSubmit}
                               className="space-y-4"
                         >
                               <Input
-                                    disabled={pending}
+                                    disabled={pendingRename || pendingCreate}
                                     required
                                     maxLength={60}
                                     value={title}
@@ -79,10 +93,10 @@ export const RenameModal = () => {
                                           </Button>
                                     </DialogClose>
                                     <Button
-                                          disabled={pending}
+                                          disabled={pendingRename || pendingCreate}
                                           type="submit"
                                     >
-                                          Сохранить
+                                          {initialValues.type === "CREATE" ? "Создать" : "Сохранить"}
                                     </Button>
                               </DialogFooter>
                         </form>
