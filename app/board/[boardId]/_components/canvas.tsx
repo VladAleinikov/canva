@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid'
 import { LiveObject } from "@liveblocks/client"
 import { LayerPreview } from "./layer-preview"
 import { SelectionBox } from "./selection-box"
+import { SelectionTools } from "./selection-tools"
 
 interface CanvasProps {
       boardId: string
@@ -66,12 +67,12 @@ export const Canvas = ({ boardId }: CanvasProps) => {
       }, [lastUsedColor])
 
       const unselectLayers = useMutation((
-            { self, setMyPresence},
+            { self, setMyPresence },
       ) => {
             if (self.presence.selection.length > 0) {
                   setMyPresence({ selection: [] }, { addToHistory: true });
-}
-       },[])
+            }
+      }, [])
 
       const resizeSelectedLayer = useMutation((
             { storage, self },
@@ -184,7 +185,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
                   setCanvasState({
                         mode: CanvasMode.None
                   })
-            }else if (canvasState.mode === CanvasMode.Inserting) {
+            } else if (canvasState.mode === CanvasMode.Inserting) {
                   insertLayer(canvasState.layerType, point)
             } else {
                   setCanvasState({
@@ -276,6 +277,10 @@ export const Canvas = ({ boardId }: CanvasProps) => {
                         canUndo={canUndo}
                         undo={history.undo}
                         redo={history.redo}
+                  />
+                  <SelectionTools
+                        camera={camera}
+                        setLastUsedColor={setLastUsedColor}
                   />
                   <svg
                         className="h-[100vh] w-[100vw]"
