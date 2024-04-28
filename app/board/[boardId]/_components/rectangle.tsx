@@ -1,3 +1,4 @@
+import { colorToCss } from "@/lib/utils";
 import { RectangleLayer } from "@/types/canvas"
 
 interface Rectanglerops {
@@ -26,8 +27,8 @@ export const Rectangle = ({
                   width={width}
                   height={height}
                   strokeWidth={1}
-                  fill="#000"
-                  stroke="transparent"
+                  fill={colorToCss(fill)}
+                  stroke={selectionColor || "transparent"}
             />
       )
 }
