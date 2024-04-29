@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Info } from "./info";
 import { Participants } from "./participants";
 import { Toolbar } from "./toolbar";
@@ -38,6 +38,8 @@ import { LayerPreview } from "./layer-preview";
 import { SelectionBox } from "./selection-box";
 import { SelectionTools } from "./selection-tools";
 import { Path } from "./path";
+import { useDisableScrollBounce } from "@/hooks/use-disable-scroll-bounce";
+import { useDeleteLayers } from "@/hooks/use-delete-layeres";
 
 interface CanvasProps {
   boardId: string;
@@ -62,6 +64,34 @@ export const Canvas = ({ boardId }: CanvasProps) => {
   const history = useHistory();
   const canRedo = useCanRedo();
   const canUndo = useCanUndo();
+  useDisableScrollBounce();
+  const deleteLayers = useDeleteLayers();
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      switch (e.key) {
+        case "z":
+          if (e.ctrlKey || e.metaKey) {
+            if (e.shiftKey) {
+              history.redo();
+            } else {
+              history.undo();
+            }
+            break;
+          }
+
+        case "Backspace":
+          deleteLayers();
+          break;
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [history, deleteLayers]);
 
   const insertLayer = useMutation(
     (
@@ -451,12 +481,7 @@ export const Canvas = ({ boardId }: CanvasProps) => {
             )}
           <CursorsPresence />
           {pencilDraft != null && pencilDraft.length > 0 && (
-            <Path
-              fill={lastUsedColor}
-              points={pencilDraft}
-              x={0}
-              y={0}
-            />
+            <Path fill={lastUsedColor} points={pencilDraft} x={0} y={0} />
           )}
         </g>
       </svg>
