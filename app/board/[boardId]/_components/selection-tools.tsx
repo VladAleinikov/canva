@@ -20,6 +20,61 @@ export const SelectionTools = memo(({
       setLastUsedColor
 }: SelectionToolsProps) => {
       const selection = useSelf((me) => me.presence.selection);
+      
+            const setFill = useMutation((
+                  { storage },
+                  fill: Color
+            ) => {
+                  const liveLayers = storage.get("layers");
+                  setLastUsedColor(fill);
+      
+                  selection.forEach((id) => {
+                        liveLayers.get(id)?.set("fill", fill);
+                  })
+            }, [selection, setLastUsedColor])
+      
+            const moveToBack = useMutation((
+                  { storage }
+            ) => {
+                  const liveLayerIds = storage.get("layerIds");
+                  const indices: number[] = [];
+      
+                  const arr = liveLayerIds.toArray();
+      
+                  for (let i = 0; i < arr.length; i++) {
+                        if (selection.includes(arr[i])) {
+                              indices.push(i)
+                        }
+      
+                  }
+      
+                  for (let i = 0; i < indices.length; i++) {
+                        liveLayerIds.move(indices[i], i);
+                  }
+            }, [selection])
+      
+            const moveToFront = useMutation((
+                  { storage }
+            ) => {
+                  const liveLayerIds = storage.get("layerIds");
+                  const indices: number[] = [];
+      
+                  const arr = liveLayerIds.toArray();
+      
+                  for (let i = 0; i < arr.length; i++) {
+                        if (selection.includes(arr[i])) {
+                              indices.push(i)
+                        }
+      
+                  }
+      
+                  for (let i = indices.length - 1; i >= 0; i--) {
+                        liveLayerIds.move(
+                              indices[i],
+                              arr.length - 1 - (indices.length - 1 - i)
+                        )
+                  }
+            }, [selection])
 
       const deleteLayers = useDeleteLayers();
 
@@ -30,62 +85,7 @@ export const SelectionTools = memo(({
       }
 
       const x = selectionBounds.width / 2 + selectionBounds.x + camera.x;
-      const y = selectionBounds.height / 2 + selectionBounds.y + camera.y;
-
-      const setFill = useMutation((
-            { storage },
-            fill: Color
-      ) => {
-            const liveLayers = storage.get("layers");
-            setLastUsedColor(fill);
-
-            selection.forEach((id) => {
-                  liveLayers.get(id)?.set("fill", fill);
-            })
-      }, [selection, setLastUsedColor])
-
-      const moveToBack = useMutation((
-            { storage }
-      ) => {
-            const liveLayerIds = storage.get("layerIds");
-            const indices: number[] = [];
-
-            const arr = liveLayerIds.toArray();
-
-            for (let i = 0; i < arr.length; i++) {
-                  if (selection.includes(arr[i])) {
-                        indices.push(i)
-                  }
-
-            }
-
-            for (let i = 0; i < indices.length; i++) {
-                  liveLayerIds.move(indices[i], i);
-            }
-      }, [selection])
-
-      const moveToFront = useMutation((
-            { storage }
-      ) => {
-            const liveLayerIds = storage.get("layerIds");
-            const indices: number[] = [];
-
-            const arr = liveLayerIds.toArray();
-
-            for (let i = 0; i < arr.length; i++) {
-                  if (selection.includes(arr[i])) {
-                        indices.push(i)
-                  }
-
-            }
-
-            for (let i = indices.length - 1; i >= 0; i--) {
-                  liveLayerIds.move(
-                        indices[i],
-                        arr.length - 1 - (indices.length - 1 - i)
-                  )
-            }
-      }, [selection])
+      const y = selectionBounds.y + camera.y;
 
       return (
             <div
