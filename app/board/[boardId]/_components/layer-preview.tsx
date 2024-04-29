@@ -4,6 +4,9 @@ import { useStorage } from "@/liveblocks.config"
 import { LayerType } from "@/types/canvas"
 import { memo } from "react"
 import { Rectangle } from "./rectangle"
+import { Ellipse } from "./ellipse"
+import { Text } from "./text"
+import { Note } from "./note"
 
 interface LayerPreviewProps {
       id: string,
@@ -21,6 +24,7 @@ export const LayerPreview = memo(({
       if (!layer) {
             return null;
       }
+console.log(layer.type);
 
       switch (layer.type) {
             case LayerType.Rectangle:
@@ -32,7 +36,33 @@ export const LayerPreview = memo(({
                               selectionColor={selectionColor}
                         />
                   )
-      
+            case LayerType.Ellipse:
+                  return (
+                    <Ellipse
+                      id={id}
+                      layer={layer}
+                      onPoinerDown={onLayerPointerDown}
+                      selectionColor={selectionColor}
+                    />
+                  );
+            case LayerType.Text:
+                  return (
+                    <Text
+                      id={id}
+                      layer={layer}
+                      onPoinerDown={onLayerPointerDown}
+                      selectionColor={selectionColor}
+                    />
+                  );
+            case LayerType.Note:
+                  return (
+                    <Note
+                      id={id}
+                      layer={layer}
+                      onPoinerDown={onLayerPointerDown}
+                      selectionColor={selectionColor}
+                    />
+                  );
             default:
                   return null;
       }
