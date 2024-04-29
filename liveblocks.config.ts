@@ -1,6 +1,6 @@
 import { LiveList, LiveMap, LiveObject, createClient } from "@liveblocks/client";
 import { createRoomContext, createLiveblocksContext } from "@liveblocks/react";
-import { Layer } from "./types/canvas";
+import { Color, Layer } from "./types/canvas";
 
 const client = createClient({
   throttle: 16,
@@ -53,7 +53,9 @@ const client = createClient({
 // `user.presence` property. Must be JSON-serializable.
 type Presence = {
   cursor: { x: number, y: number } | null,
-  selection: string[]
+  selection: string[],
+  pencilDraft: [x: number, y: number, prssure: number][] | null,
+  penColor: Color | null
   // ...
 };
 

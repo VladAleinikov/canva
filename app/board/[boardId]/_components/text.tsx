@@ -7,7 +7,7 @@ import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 interface TextProps {
   id: string;
   layer: TextLayer;
-  onPoinerDown: (e: React.PointerEvent, id: string) => void;
+  onPointerDown: (e: React.PointerEvent, id: string) => void;
   selectionColor?: string;
 }
 
@@ -28,7 +28,7 @@ const calculateFontSize = (width: number, height: number) => {
 export const Text = ({
   id,
   layer,
-  onPoinerDown,
+  onPointerDown,
   selectionColor,
 }: TextProps) => {
   const { x, y, width, height, fill, value } = layer;
@@ -43,7 +43,7 @@ export const Text = ({
   }
   return (
     <foreignObject
-      onPointerDown={(e) => onPoinerDown(e, id)}
+      onPointerDown={(e) => onPointerDown(e, id)}
       style={{
         outline: selectionColor ? `1px solid ${selectionColor}` : "none",
       }}

@@ -1,17 +1,20 @@
-import { Camera, Color, Layer, Point, Side, XYWH } from "@/types/canvas";
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import {
+  Camera,
+  Color,
+  Layer,
+  LayerType,
+  PathLayer,
+  Point,
+  Side,
+  XYWH,
+} from "@/types/canvas";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-const COLORS = [
-  "#DC2626",
-  "#D97706",
-  "#059669",
-  "#7C3AED",
-  "#DB2777"
-]
+const COLORS = ["#DC2626", "#D97706", "#059669", "#7C3AED", "#DB2777"];
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function connectionIdToColor(connectionId: number): string {
@@ -25,11 +28,11 @@ export function pointerEventToCanvasPoint(
   return {
     x: Math.round(e.clientX) - camera.x,
     y: Math.round(e.clientY) - camera.y,
-  }
+  };
 }
 
 export function colorToCss(color: Color) {
-  return `rgb(${color.r}, ${color.g}, ${color.b})`
+  return `rgb(${color.r}, ${color.g}, ${color.b})`;
 }
 
 export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
@@ -38,7 +41,7 @@ export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
-  }
+  };
 
   if ((corner & Side.Left) === Side.Left) {
     result.x = Math.min(point.x, bounds.x + bounds.width);
@@ -59,13 +62,15 @@ export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
 
   return result;
 }
-export function hexToRgb(hex: string) : Color {
+export function hexToRgb(hex: string): Color {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : {r:0, g:0, b:0};
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 0, g: 0, b: 0 };
 }
 export function findIntersectingLayersWithRectangle(
   layerIds: readonly string[],
@@ -89,7 +94,7 @@ export function findIntersectingLayersWithRectangle(
       continue;
     }
 
-    const { x,y,height,width} = layer;
+    const { x, y, height, width } = layer;
 
     if (
       rect.x + rect.width > x &&
@@ -97,7 +102,7 @@ export function findIntersectingLayersWithRectangle(
       rect.y + rect.height > y &&
       rect.y < y + height
     ) {
-      ids.push(layerId)
+      ids.push(layerId);
     }
   }
 
@@ -108,4 +113,65 @@ export function getContrastingTextColor(color: Color) {
   const luminance = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
 
   return luminance > 182 ? "black" : "white";
+}
+
+export function penPointsToPathLayer(
+  points: number[][],
+  color: Color
+): PathLayer {
+  if (points.length < 2) {
+    throw new Error("Невозможно создать линию из меньше 2 точек");
+  }
+
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+
+  for (const point of points) {
+    const [x, y] = point;
+
+    if (left > x) {
+      left = x;
+    }
+
+    if (top > y) {
+      top = y;
+    }
+
+    if (right < x) {
+      right = x;
+    }
+
+    if (bottom < y) {
+      bottom = y;
+    }
+  }
+
+  return {
+    type: LayerType.Path,
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+    fill: color,
+    points: points.map(([x, y, pressure]) => [x - left, y - top, pressure]),
+  };
+}
+
+export function getSvgPathFromStroke(stroke: number[][]) {
+  if (!stroke.length) return "";
+
+  const d = stroke.reduce(
+    (acc, [x0, y0], i, arr) => {
+      const [x1, y1] = arr[(i + 1) % arr.length];
+      acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+      return acc;
+    },
+    ["M", ...stroke[0], "Q"]
+  );
+
+  d.push("Z");
+
+  return d.join(" ");
 }

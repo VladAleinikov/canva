@@ -4,21 +4,21 @@ import { EllipseLayer } from "@/types/canvas";
 interface EllipseProps {
   id: string;
   layer: EllipseLayer;
-  onPoinerDown: (e: React.PointerEvent, id: string) => void;
+  onPointerDown: (e: React.PointerEvent, id: string) => void;
   selectionColor?: string;
 }
 
 export const Ellipse = ({
   id,
   layer,
-  onPoinerDown,
+  onPointerDown,
   selectionColor,
 }: EllipseProps) => {
   const { x, y, width, height, fill } = layer;
   return (
     <ellipse
       className="drop-shadow-md"
-      onPointerDown={(e) => onPoinerDown(e, id)}
+      onPointerDown={(e) => onPointerDown(e, id)}
       style={{
         transform: `translate(${x}px, ${y}px)`,
       }}
